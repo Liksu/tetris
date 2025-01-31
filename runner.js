@@ -23,13 +23,21 @@ const render = new Vga(glass, EGA)
  * @type {object}
  * @property {Figure} next
  * @property {number} score
+ * @property {number} highscore
  * @property {boolean} isOver
  * @property {boolean} isPaused
  * @property {boolean} showShadow
  * @property {number} speed
  */
 
-const state = {}
+let highscore = +localStorage.getItem('tetris:highscore') || 0
+const state = {
+    get highscore() { return highscore },
+    set highscore(newHighscore) {
+        highscore = newHighscore
+        localStorage.setItem('tetris:highscore', newHighscore)
+    }
+}
 
 const settings = {
     speed: {

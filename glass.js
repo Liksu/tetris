@@ -97,6 +97,7 @@ export class Glass {
     add(figure, state) {
         const removedRows = this.store()
         state.score += removedRows ?? 0 // glass shouldn't know about score
+        if (state.score > state.highscore) state.highscore = state.score
 
         const canPlace = this.check(figure)
         if (!canPlace) return false
