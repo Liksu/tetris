@@ -3,13 +3,42 @@ import {rnd, pick} from "../utils.js";
 /**
  * @typedef FigureDescription
  * @type {object}
- * @property {number} value
- * @property {number} top
- * @property {number} left
- * @property {number} width
- * @property {number} height
- * @property {number} [state]
- * @property {string} [type]
+ * @property {number} value - bit mask for each rotated variant
+ * @property {number} top - the top position of the first bit (left-top cell of the figure)
+ * @property {number} left - the left position of the first bit
+ * @property {number} width - current width of the (rotated) figure
+ * @property {number} height - current height of the figure
+ * @property {number} [state] - current rotation index
+ * @property {string} [type] - figure type like 'T' or 'Z'
+ */
+
+/**
+ * Example FigureDescription.value for L
+ * width = 2, height = 3
+ * First value represents the first the default rotation state related to the
+ * width and height, width the clock-wise rotation direction. Read from left
+ * to right, from top to bottom, in this case, by two bits at a time.
+ *
+ * Visual representation of the rotations:
+ * +---+---+      +---+---+---+      +---+---+      +---+---+---+
+ * | # |   |      | # | # | # |      | # | # |      |   |   | # |
+ * +---+---+      +---+---+---+      +---+---+      +---+---+---+
+ * | # |   |      | # |   |   |      |   | # |      | # | # | # |
+ * +---+---+      +---+---+---+      +---+---+      +---+---+---+
+ * | # | # |                         |   | # |
+ * +---+---+                         +---+---+
+ *
+ * Bit mask representation for each rotation:
+ * +---+---+      +---+---+---+      +---+---+      +---+---+---+
+ * | 1 | 0 |      | 1 | 1 | 1 |      | 1 | 1 |      | 0 | 0 | 1 |
+ * +---+---+      +---+---+---+      +---+---+      +---+---+---+
+ * | 1 | 0 |      | 1 | 0 | 0 |      | 0 | 1 |      | 1 | 1 | 1 |
+ * +---+---+      +---+---+---+      +---+---+      +---+---+---+
+ * | 1 | 1 |                         | 0 | 1 |
+ * +---+---+                         +---+---+
+ * 
+ * Bit mask values:
+ * 0b101011       0b111100           0b110101       0b001111
  */
 
 /**
@@ -115,6 +144,12 @@ export class Figure {
             }
         }
         return bricks
+    }
+    
+    getShadow(glass) {
+        const lowestRow = glass.lowestRow()
+        if (this.top >= lowestRow) return null
+        return this.getBricks().map(brick => ({ ...brick, y: brick.y - figure.top + lowestRow }))
     }
 
     /** @return FigureDescription */

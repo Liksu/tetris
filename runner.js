@@ -1,4 +1,5 @@
 import {TextRender} from "./renders/text.js"
+import {Vga} from "./renders/vga.js"
 import I from "./figures/I.js"
 import J from "./figures/J.js"
 import L from "./figures/L.js"
@@ -14,7 +15,8 @@ const figures = [I, J, L, O, S, T, Z]
 Object.assign(figures, {I, J, L, O, S, T, Z})
 
 const glass = new Glass()
-const render = new TextRender(glass, EGA)
+// const render = new TextRender(glass, EGA)
+const render = new Vga(glass, EGA)
 
 /**
  * @typedef State
@@ -22,6 +24,8 @@ const render = new TextRender(glass, EGA)
  * @property {Figure} next
  * @property {number} score
  * @property {boolean} isOver
+ * @property {boolean} isPaused
+ * @property {boolean} showShadow
  * @property {number} speed
  */
 
@@ -33,6 +37,8 @@ const settings = {
         max: 800
     }
 }
+
+let timerId = null
 
 function addFigure() {
     const figure = state.next
@@ -47,39 +53,8 @@ function getNext(figureConstructor = rnd(figures)) {
     return new (figureConstructor)().init(glass.width)
 }
 
-/*
-[
-    {type: 'L', left: 7, top: 18, state: 3},
-    {type: 'L', left: 6, top: 18, state: 1},
-    {type: 'T', left: 7, top: 16, state: 2},
-    {type: 'I', left: 0, top: 16, state: 1},
-    {type: 'I', left: 2, top: 16, state: 1},
-    {type: 'I', left: 4, top: 16, state: 1},
-    {type: 'O', left: 0, top: 14, state: 0},
-    {type: 'O', left: 2, top: 14, state: 0},
-    {type: 'O', left: 4, top: 14, state: 0},
-    {type: 'O', left: 6, top: 14, state: 0},
-    {type: 'O', left: 0, top: 12, state: 0},
-    {type: 'O', left: 2, top: 12, state: 0},
-    {type: 'O', left: 4, top: 12, state: 0},
-    {type: 'O', left: 6, top: 12, state: 0},
-    {type: 'I', left: 8, top: 12, state: 1},
-    {type: 'J', left: 0, top: 10, state: 1},
-    {type: 'J', left: 0, top: 9, state: 3},
-    {type: 'O', left: 0, top: 7, state: 0},
-].forEach(step => {
-    const figure = new figures[step.type]()
-    const {width, height} = figure.getRotated(step.state)
-    Object.assign(figure, {...step, width, height})
-    glass.add(figure, state)
-})
-state.next = getNext(I)
-*/
-
-//Array.from({length: 500}, (_, score) => 800-Math.log10(score/16+0.2)*600).map(n => n > 800 ? 800 : n < 32 ? 32 : n)
-
 Object.assign(window, {
-    figures, glass, render, state
+    figures, glass, render, state, settings
 })
 
 function stop() {
@@ -88,6 +63,7 @@ function stop() {
 }
 
 function keyboardHandler(event) {
+    console.log(event.key)
     if (state.isOver) {
         if (event.key === 'n') {
             start(this)
@@ -101,7 +77,7 @@ function keyboardHandler(event) {
             glass.rotate()
             break
         case 'ArrowDown':
-            glass.move({top: 1})
+            if (!state.isPaused) glass.move({top: 1})
             break
         case 'ArrowLeft':
             glass.move({left: -1})
@@ -110,9 +86,12 @@ function keyboardHandler(event) {
             glass.move({left: 1})
             break
         case 'Pause':
+        case 'p':
+            pause()
             break
         case 'Enter':
         case ' ': // pull down
+            if (state.isPaused) break
             while (glass.move({top: 1})) {}
             addFigure()
             break
@@ -123,6 +102,8 @@ function keyboardHandler(event) {
             break
         case '-': // speed down
             break
+        case 'h':
+            state.showShadow = !state.showShadow
         case 'i':
             state.next = getNext(I)
             render.redraw(state)
@@ -166,6 +147,15 @@ function keyboardHandler(event) {
 }
 document.addEventListener('keydown', keyboardHandler)
 
+function pause() {
+    state.isPaused = !state.isPaused
+    if (!state.isPaused) step()
+    else {
+        clearTimeout(timerId)
+        render.redraw(state)
+    }
+}
+
 function start(again = false) {
     if (again) {
         glass.reset()
@@ -175,21 +165,26 @@ function start(again = false) {
         score: 0,
         next: getNext(),
         isOver: false,
+        isPaused: false,
         speed: 1
     })
 
     addFigure()
+    clearTimeout(timerId)
     setTimeout(step, settings.speed.max)
 }
 
 function step() {
+    if (state.isPaused) return;
+    
     if (glass.move({top: 1})) render.redraw(state)
     else addFigure()
 
     if (state.isOver) return;
 
     const duration = 800 - Math.log10(state.score / 16 + 0.2) * 600
-    setTimeout(step, duration > settings.speed.max ? settings.speed.max : duration < settings.speed.min ? settings.speed.min : duration)
+    const timeout = duration > settings.speed.max ? settings.speed.max : duration < settings.speed.min ? settings.speed.min : duration
+    timerId = setTimeout(step, timeout)
 }
 
 start()
