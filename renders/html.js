@@ -110,7 +110,7 @@ const css = palette => ({
     '.game-over': {},
 })
 
-export class Vga {
+export class HtmlRender {
     constructor(glass, palette) {
         this.glass = glass
         this.palette = palette

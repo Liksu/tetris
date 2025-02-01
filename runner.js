@@ -1,5 +1,5 @@
 import {TextRender} from "./renders/text.js"
-import {Vga} from "./renders/vga.js"
+import {HtmlRender} from "./renders/html.js"
 import I from "./figures/I.js"
 import J from "./figures/J.js"
 import L from "./figures/L.js"
@@ -16,7 +16,7 @@ Object.assign(figures, {I, J, L, O, S, T, Z})
 
 const glass = new Glass()
 // const render = new TextRender(glass, EGA)
-const render = new Vga(glass, EGA)
+const render = new HtmlRender(glass, EGA)
 
 /**
  * @typedef State
