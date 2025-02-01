@@ -43,7 +43,8 @@ const settings = {
     speed: {
         min: 32,
         max: 800
-    }
+    },
+    restartKeys: ['n', ' ', 'Enter'],
 }
 
 let timerId = null
@@ -73,7 +74,7 @@ function stop() {
 function keyboardHandler(event) {
     console.log(event.key)
     if (state.isOver) {
-        if (event.key === 'n') {
+        if (settings.restartKeys.includes(event.key)) {
             start(this)
         }
 
