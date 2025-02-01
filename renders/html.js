@@ -15,6 +15,7 @@ const css = palette => ({
         border: '1px solid var(--secondary-color)',
         boxSizing: 'border-box',
         backgroundColor: 'var(--main-color)',
+        marginTop: '1px',
 
         // color: 'white',
         // fontWeight: 'bold',
