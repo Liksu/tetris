@@ -42,3 +42,8 @@ export function addStyles(styles, palette = {}) {
     
     return () => styleElement.remove()
 }
+
+export function opacity(color, alpha = 1) {
+    const [r, g, b] = color.match(/\w\w/g).map(hex => parseInt(hex, 16))
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`
+}
