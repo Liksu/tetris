@@ -6,7 +6,20 @@ import S from "./figures/S.js"
 import T from "./figures/T.js"
 import Z from "./figures/Z.js"
 
+import EGA from './palettes/EGA.js'
+import contrast from './palettes/contrast.js'
+import pastel from './palettes/pastel.js'
+import neon from './palettes/neon.js'
+import retro from './palettes/retro.js'
+import earthy from './palettes/earthy.js'
+import vivid from './palettes/vivid.js'
+import monochrome from './palettes/monochrome.js'
+import matrix from './palettes/matrix.js'
+import aurora from './palettes/aurora.js'
+
+
 const types = { I, J, L, O, S, T, Z }
+const palettes = [EGA, contrast, pastel, neon, retro, earthy, vivid, monochrome, matrix, aurora]
 
 const figures = [
     { type: 'J', left: 2, top: 0, state: 0, width: 2, height: 3 },
@@ -50,11 +63,24 @@ export function showAll(glass, render, gameState) {
     
     render.redraw(gameState)
     
+    let paletteIndex = 0
+    
     document.addEventListener('keydown', (event) => {
+        // change figure in preview
         if (event.key === ' ') {
             nextIndex++
             if (nextIndex >= figures.length) nextIndex = 0
             state.next = makeFigure(figures[nextIndex])
+            render.redraw(gameState)
+        }
+        
+        // change color scheme
+        if (event.key === 'Enter') {
+            render.removeStyles()
+            paletteIndex++
+            if (paletteIndex >= palettes.length) paletteIndex = 0
+            render.palette = palettes[paletteIndex]
+            render.addStyles()
             render.redraw(gameState)
         }
     })

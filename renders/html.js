@@ -124,7 +124,11 @@ export class HtmlRender {
             speed: document.querySelector('.speed'),
         }
         
-        this.removeStyles = addStyles(css(palette), palette)
+        this.addStyles()
+    }
+    
+    addStyles() {
+        this.removeStyles = addStyles(css(this.palette), this.palette)
     }
 
     redraw(state) {
