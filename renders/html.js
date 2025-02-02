@@ -1,4 +1,5 @@
-import { addStyles, opacity } from '../utils.js'
+import { opacity } from '../utils.js'
+import { Render } from './render.js'
 
 const brickSize = {value: 5, unit: 'vh'}
 const getSize = (n = 1, fix = true) => {
@@ -81,7 +82,7 @@ const css = palette => ({
         padding: '1px',
     },
     
-    '.score': {
+    '.score, .highscore': {
         fontFamily: 'monospace',
         fontSize: '2em',
     },
@@ -111,26 +112,11 @@ const css = palette => ({
     '.game-over': {},
 })
 
-export class HtmlRender {
+export class HtmlRender extends Render {
     constructor(glass, palette) {
-        this.glass = glass
-        this.palette = palette
-
-        this.elements = {
-            info: document.querySelector('.info'),
-            score: document.querySelector('.score'),
-            glass: document.querySelector('.glass'),
-            preview: document.querySelector('.preview'),
-            speed: document.querySelector('.speed'),
-        }
-        
-        this.addStyles()
+        super(glass, palette, css)
     }
     
-    addStyles() {
-        this.removeStyles = addStyles(css(this.palette), this.palette)
-    }
-
     redraw(state) {
         this.elements.glass.innerHTML = ''
 
@@ -155,12 +141,7 @@ export class HtmlRender {
         ).join(''))
         
         this.elements.score.innerHTML = `Score: ${state.score}`
-
-        this.elements.highscore?.remove()
-        this.elements.highscore = document.createElement('div')
         this.elements.highscore.innerHTML = `Highscore: ${state.highscore}`
-        this.elements.highscore.className = 'score'
-        this.elements.info.appendChild(this.elements.highscore)
     }
     
     #wrapFigure(figure, html) {
@@ -182,9 +163,5 @@ export class HtmlRender {
 
         // return `<div class="${classes}" style="${position}"><span>${brick.x} x</span> ${brick.y}</div>`
         return `<div class="${classes}" style="${position}"></div>`
-    }
-
-    destruct() {
-        this.removeStyles()
     }
 }

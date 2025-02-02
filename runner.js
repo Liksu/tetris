@@ -1,23 +1,8 @@
-import { TextRender } from "./renders/text.js"
-import { HtmlRender } from "./renders/html.js"
-import I from "./figures/I.js"
-import J from "./figures/J.js"
-import L from "./figures/L.js"
-import O from "./figures/O.js"
-import S from "./figures/S.js"
-import T from "./figures/T.js"
-import Z from "./figures/Z.js"
-import { Glass } from "./glass.js"
-import EGA from './palettes/EGA.js'
-import { rnd, pick } from './utils.js'
+import { rnd } from './utils.js'
 import { showAll } from './debug.js'
+import { Core } from './core.js'
 
-const figures = [I, J, L, O, S, T, Z]
-Object.assign(figures, { I, J, L, O, S, T, Z })
-
-const glass = new Glass()
-// const render = new TextRender(glass, EGA)
-const render = new HtmlRender(glass, EGA)
+const core = new Core()
 
 /**
  * @typedef State
@@ -53,18 +38,18 @@ let timerId = null
 function addFigure() {
     const figure = state.next
     state.next = getNext()
-    const placed = glass.add(figure, state)
+    const placed = core.glass.add(figure, state)
     if (!placed) stop()
-    render.redraw(state)
+    core.render.redraw(state)
     window.figure = figure
 }
 
-function getNext(figureConstructor = rnd(figures)) {
-    return new (figureConstructor)().init(glass.width)
+function getNext(figureConstructor = rnd(core.figures)) {
+    return new (figureConstructor)().init(core.glass.width)
 }
 
 Object.assign(window, {
-    figures, glass, render, state, settings
+    figures: core.figures, glass: core.glass, render: core.render, state, settings, core
 })
 
 function stop() {
@@ -83,16 +68,16 @@ function keyboardHandler(event) {
 
     switch (event.key) {
         case 'ArrowUp':
-            glass.rotate()
+            core.glass.rotate()
             break
         case 'ArrowDown':
-            if (!state.isPaused) glass.move({top: 1})
+            if (!state.isPaused) core.glass.move({top: 1})
             break
         case 'ArrowLeft':
-            glass.move({left: -1})
+            core.glass.move({left: -1})
             break
         case 'ArrowRight':
-            glass.move({left: 1})
+            core.glass.move({left: 1})
             break
         case 'Pause':
         case 'p':
@@ -101,10 +86,10 @@ function keyboardHandler(event) {
         case 'Enter':
         case ' ': // pull down
             if (state.isPaused) break
-            while (glass.move({top: 1})) {}
+            while (core.glass.move({top: 1})) {}
             addFigure()
             break
-        case 'n': // restart
+        case 'n': // 'new', restart
             start(true)
             break
         case '+': // speed up
@@ -113,46 +98,55 @@ function keyboardHandler(event) {
             break
         case 'h':
             state.showShadow = !state.showShadow
+            break
         case 'i':
-            state.next = getNext(I)
-            render.redraw(state)
+            state.next = getNext(core.figures.I)
+            core.render.redraw(state)
             break
         case 'j':
-            state.next = getNext(J)
-            render.redraw(state)
+            state.next = getNext(core.figures.J)
+            core.render.redraw(state)
             break
         case 'l':
-            state.next = getNext(L)
-            render.redraw(state)
+            state.next = getNext(core.figures.L)
+            core.render.redraw(state)
             break
         case 'o':
-            state.next = getNext(O)
-            render.redraw(state)
+            state.next = getNext(core.figures.O)
+            core.render.redraw(state)
             break
         case 's':
-            state.next = getNext(S)
-            render.redraw(state)
+            state.next = getNext(core.figures.S)
+            core.render.redraw(state)
             break
         case 't':
-            state.next = getNext(T)
-            render.redraw(state)
+            state.next = getNext(core.figures.T)
+            core.render.redraw(state)
             break
         case 'z':
-            state.next = getNext(Z)
-            render.redraw(state)
+            state.next = getNext(core.figures.Z)
+            core.render.redraw(state)
             break
         case 'Escape':  // swap next
-            const {top, left} = glass.current
-            const canBePlaced = glass.check({...state.next.description, top, left})
+            const {top, left} = core.glass.current
+            const canBePlaced = core.glass.check({...state.next.description, top, left})
             if (canBePlaced) {
-                [state.next, glass.current] = [glass.current, state.next]
-                Object.assign(glass.current, {top, left})
+                [state.next, core.glass.current] = [core.glass.current, state.next]
+                Object.assign(core.glass.current, {top, left})
             }
-            render.redraw(state)
+            core.render.redraw(state)
+            break
+        case 'c': // 'color', change palette
+            core.next('palette')
+            core.render.redraw(state)
+            break
+        case 'v': // 'view', change renderer
+            core.next('renderer')
+            core.render.redraw(state)
             break
     }
 
-    render.redraw(state)
+    core.render.redraw(state)
 }
 document.addEventListener('keydown', keyboardHandler)
 
@@ -161,7 +155,7 @@ function pause() {
     if (!state.isPaused) step()
     else {
         clearTimeout(timerId)
-        render.redraw(state)
+        core.render.redraw(state)
     }
 }
 
@@ -176,7 +170,7 @@ function resetState() {
 }
 
 function start(again = false) {
-    if (again) glass.reset()
+    if (again) core.glass.reset()
     resetState()
     addFigure()
     clearTimeout(timerId)
@@ -186,7 +180,7 @@ function start(again = false) {
 function step() {
     if (state.isPaused) return;
     
-    if (glass.move({top: 1})) render.redraw(state)
+    if (core.glass.move({top: 1})) core.render.redraw(state)
     else addFigure()
 
     if (state.isOver) return;
@@ -196,10 +190,10 @@ function step() {
     timerId = setTimeout(step, timeout)
 }
 
-if (new URLSearchParams(location.search).get('debug') === 'show:figures') {
+if (core.query.get('debug') === 'show:figures') {
     document.removeEventListener('keydown', keyboardHandler)
     resetState()
-    showAll(glass, render, state)
+    showAll(core, core.glass, core.render, state)
 } else {
     start()
 }

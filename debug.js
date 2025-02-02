@@ -49,7 +49,7 @@ export function makeFigure({type, ...description}) {
     return figure
 }
 
-export function showAll(glass, render, gameState) {
+export function showAll(core, glass, render, gameState) {
     glass.reset()
 
     figures
@@ -67,18 +67,20 @@ export function showAll(glass, render, gameState) {
     
     document.addEventListener('keydown', (event) => {
         // change figure in preview
-        if (event.key === ' ') {
-            nextIndex++
+        if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+            nextIndex += event.key === 'ArrowDown' ? -1 : 1
             if (nextIndex >= figures.length) nextIndex = 0
+            if (nextIndex < 0) nextIndex = figures.length - 1
             state.next = makeFigure(figures[nextIndex])
             render.redraw(gameState)
         }
         
         // change color scheme
-        if (event.key === 'Enter') {
+        if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
             render.removeStyles()
-            paletteIndex++
+            paletteIndex += event.key === 'ArrowRight' ? 1 : -1
             if (paletteIndex >= palettes.length) paletteIndex = 0
+            if (paletteIndex < 0) paletteIndex = palettes.length - 1
             render.palette = palettes[paletteIndex]
             render.addStyles()
             render.redraw(gameState)
