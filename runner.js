@@ -1,5 +1,5 @@
-import {TextRender} from "./renders/text.js"
-import {HtmlRender} from "./renders/html.js"
+import { TextRender } from "./renders/text.js"
+import { HtmlRender } from "./renders/html.js"
 import I from "./figures/I.js"
 import J from "./figures/J.js"
 import L from "./figures/L.js"
@@ -7,12 +7,13 @@ import O from "./figures/O.js"
 import S from "./figures/S.js"
 import T from "./figures/T.js"
 import Z from "./figures/Z.js"
-import {Glass} from "./glass.js"
+import { Glass } from "./glass.js"
 import EGA from './palettes/EGA.js'
-import {rnd, pick} from './utils.js'
+import { rnd, pick } from './utils.js'
+import { showAll } from './debug.js'
 
 const figures = [I, J, L, O, S, T, Z]
-Object.assign(figures, {I, J, L, O, S, T, Z})
+Object.assign(figures, { I, J, L, O, S, T, Z })
 
 const glass = new Glass()
 // const render = new TextRender(glass, EGA)
@@ -72,7 +73,6 @@ function stop() {
 }
 
 function keyboardHandler(event) {
-    console.log(event.key)
     if (state.isOver) {
         if (settings.restartKeys.includes(event.key)) {
             start(this)
@@ -165,11 +165,7 @@ function pause() {
     }
 }
 
-function start(again = false) {
-    if (again) {
-        glass.reset()
-    }
-
+function resetState() {
     Object.assign(state, {
         score: 0,
         next: getNext(),
@@ -177,7 +173,11 @@ function start(again = false) {
         isPaused: false,
         speed: 1
     })
+}
 
+function start(again = false) {
+    if (again) glass.reset()
+    resetState()
     addFigure()
     clearTimeout(timerId)
     setTimeout(step, settings.speed.max)
@@ -196,4 +196,10 @@ function step() {
     timerId = setTimeout(step, timeout)
 }
 
-start()
+if (new URLSearchParams(location.search).get('debug') === 'show:figures') {
+    document.removeEventListener('keydown', keyboardHandler)
+    resetState()
+    showAll(glass, render, state)
+} else {
+    start()
+}
