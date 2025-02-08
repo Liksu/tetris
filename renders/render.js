@@ -32,4 +32,12 @@ export class Render {
     destruct() {
         this.removeStyles()
     }
+    
+    get text() {
+        return this.core.lang.value
+    }
+    
+    get isTv() {
+        return this.core.query.get('mode') === 'tv' || this.core.query.has('tv')
+    }
 }

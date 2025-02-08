@@ -60,11 +60,11 @@ export class TextRender extends Render {
     
     #prepareView() {
         this.elements.scoreTitle = document.createElement('h1')
-        this.elements.scoreTitle.innerHTML = 'Score:'
+        this.elements.scoreTitle.innerHTML = this.text.score + ':'
         this.elements.info.insertBefore(this.elements.scoreTitle, this.elements.score)
 
         this.elements.nextTitle = document.createElement('h1')
-        this.elements.nextTitle.innerHTML = 'Next:'
+        this.elements.nextTitle.innerHTML = this.text.next + ':'
         this.elements.info.insertBefore(this.elements.nextTitle, this.elements.preview)
     }
 

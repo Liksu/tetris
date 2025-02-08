@@ -27,7 +27,7 @@ const state = {
 
 const settings = {
     speed: {
-        min: 6,
+        min: 4,
         max: 64,
         default: 24,
     },
@@ -150,11 +150,12 @@ function keyboardHandler(event) {
             break
         case 'c': // 'color', change palette
             core.next('palette')
-            core.render.redraw(state)
             break
         case 'v': // 'view', change renderer
             core.next('renderer')
-            core.render.redraw(state)
+            break
+        case 'd': // 'dialect', change language
+            core.next('lang')
             break
     }
 

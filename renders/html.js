@@ -61,6 +61,7 @@ const css = palette => ({
         flexDirection: 'column',
         gap: getSize(1),
         color: 'white',
+        fontFamily: 'monospace',
         justifyContent: 'center',
     },
     
@@ -83,7 +84,6 @@ const css = palette => ({
     },
     
     '.score, .highscore': {
-        fontFamily: 'monospace',
         fontSize: '2em',
     },
     
@@ -101,20 +101,34 @@ const css = palette => ({
         borderRadius: '1em',
     },
     
-    '.message span': {
+    '.message p': {
         opacity: '1',
         color: 'white',
         fontSize: '3em',
         fontFamily: 'monospace',
+        margin: '0',
     },
     
     '.palette': {
         color: 'silver',
-        fontFamily: 'monospace',
+    },
+    
+    '.speed': {
+        color: 'silver',
+        marginBottom: getSize(-1),
     },
     
     '.paused': {},
-    '.game-over': {},
+    
+    '.game-over': {
+        padding: '1.5em',
+    },
+    '.game-over .key': {
+        color: 'silver',
+        fontSize: '1em',
+        marginTop: '1.2em',
+        marginBottom: '0.8em',
+    },
 })
 
 export class HtmlRender extends Render {
@@ -138,17 +152,18 @@ export class HtmlRender extends Render {
             row.map(brick => this.#drawBrick(brick)).join('')
         ).join('\n')
         
-        if (state.isPaused) this.elements.glass.innerHTML += this.#makeMessage('Paused', 'paused')
-        if (state.isOver) this.elements.glass.innerHTML += this.#makeMessage('Game Over', 'game-over')
+        if (state.isPaused) this.elements.glass.innerHTML += this.#makeMessage(this.text.paused, 'paused')
+        if (state.isOver) this.elements.glass.innerHTML += this.#makeMessage(this.text.gameOver, 'game-over', this.text.gameOverKey)
 
         this.elements.preview.innerHTML = this.#wrapFigure(state.next, state.next.getBricks().map(brick =>
             this.#drawBrick({...brick, x: brick.x - state.next.left, y: brick.y - state.next.top})
         ).join(''))
         
-        this.elements.score.innerHTML = `Score: ${state.score}`
-        this.elements.highscore.innerHTML = `Highscore: ${state.highscore}`
-        if (this.core.query.get('mode') !== 'tv' && !this.core.query.has('tv')) {
-            this.elements.palette.innerHTML = `Palette: ${this.core.palette.title}`
+        this.elements.score.innerHTML = `${this.text.score}: ${state.score}`
+        this.elements.highscore.innerHTML = `${this.text.highscore}: ${state.highscore}`
+        if (!this.isTv) {
+            this.elements.speed.innerHTML = `${this.text.speed}: ${state.speed}`
+            this.elements.palette.innerHTML = `${this.text.palette}: ${this.core.palette.title}`
         }
     }
     
@@ -156,8 +171,13 @@ export class HtmlRender extends Render {
         return `<div class="figure" style="width: ${getSize(figure.width, 0)}; height: ${getSize(figure.height, 0)}">${html}</div>`        
     }
     
-    #makeMessage(message, className = '') {
-        return `<div class="message ${className}"><span>${message}</span></div>`
+    #makeMessage(message, className = '', keyMessage = '') {
+        if (!message) return ''
+        
+        let body = `<p class="main">${message}</p>`
+        if (keyMessage) body += `<p class="key">${keyMessage}</p>`
+        
+        return `<div class="message ${className}">${body}</div>`
     }
 
     #drawBrick(brick, phantom = false) {

@@ -24,6 +24,9 @@ import darkSerenity from './palettes/dark-serenity.js'
 import lowGlare from './palettes/low-glare.js'
 import bw from './palettes/bw.js'
 
+import EN from './langs/en.js'
+import UA from './langs/ua.js'
+
 import { Glass } from './glass.js'
 
 
@@ -38,26 +41,40 @@ Object.assign(figures, { I, J, L, O, S, T, Z })
  * @property {number} index
  */
 
+/**
+ * @typedef {Object} Query
+ * @property {string} [renderer] - Keys from the core.renderers, like 'text' or 'html'. Can have ! at the end to indicate a forced value.
+ * @property {string} [palette] - Keys from the core.palettes, like 'ega' or 'contrast'. Can have ! at the end to indicate a forced value.
+ * @property {string} [lang] - Keys from the core.langs, like 'en' or 'ua'. Can have ! at the end to indicate a forced value.
+ * @property {'tv'} [mode] - The mode key like 'tv', doesn't stored in local storage, cannot be forced.
+ * @property {''} [tv] - The tv key, same as mode=tv, doesn't stored in local storage, cannot be forced.
+ * @property {'show:figures'} [debug] - Special mode to show debug information
+ */
+
 const core = {
     renderers: [
-        { key: 'text', title: 'Text', renderer: TextRender, default: true },
-        { key: 'html', title: 'Html', renderer: HtmlRender },
+        { key: 'text', title: 'Text', value: TextRender, default: true },
+        { key: 'html', title: 'Html', value: HtmlRender },
     ],
     palettes: [
-        { key: 'ega', title: 'EGA', palette: EGA, default: true },
-        { key: 'contrast', title: 'Contrast', palette: contrast },
-        { key: 'pastel', title: 'Pastel', palette: pastel },
-        { key: 'neon', title: 'Neon', palette: neon },
-        { key: 'retro', title: 'Retro', palette: retro },
-        { key: 'earthy', title: 'Earthy', palette: earthy },
-        { key: 'vivid', title: 'Vivid', palette: vivid },
-        { key: 'monochrome', title: 'Monochrome', palette: monochrome },
-        { key: 'matrix', title: 'Matrix', palette: matrix },
-        { key: 'aurora', title: 'Aurora', palette: aurora },
-        { key: 'classic-dim', title: 'Classic Dim', palette: classicDim },
-        { key: 'dark-serenity', title: 'Dark Serenity', palette: darkSerenity },
-        { key: 'low-glare', title: 'Low Glare', palette: lowGlare },
-        { key: 'bw', title: 'Black & White', palette: bw },
+        { key: 'ega', title: 'EGA', value: EGA, default: true },
+        { key: 'contrast', title: 'Contrast', value: contrast },
+        { key: 'pastel', title: 'Pastel', value: pastel },
+        { key: 'neon', title: 'Neon', value: neon },
+        { key: 'retro', title: 'Retro', value: retro },
+        { key: 'earthy', title: 'Earthy', value: earthy },
+        { key: 'vivid', title: 'Vivid', value: vivid },
+        { key: 'monochrome', title: 'Monochrome', value: monochrome },
+        { key: 'matrix', title: 'Matrix', value: matrix },
+        { key: 'aurora', title: 'Aurora', value: aurora },
+        { key: 'classic-dim', title: 'Classic Dim', value: classicDim },
+        { key: 'dark-serenity', title: 'Dark Serenity', value: darkSerenity },
+        { key: 'low-glare', title: 'Low Glare', value: lowGlare },
+        { key: 'bw', title: 'Black & White', value: bw },
+    ],
+    langs: [
+        { key: 'en', title: 'English', value: EN, default: true },
+        { key: 'ua', title: 'Українська', value: UA },
     ],
 }
 
@@ -69,6 +86,7 @@ export class Core {
     constructor() {
         this.renderer = this.#getValue('renderer')
         this.palette = this.#getValue('palette')
+        this.lang = this.#getValue('lang')
         this.#setRenderer()
     }
     
@@ -104,7 +122,7 @@ export class Core {
     
     #setRenderer() {
         this.render?.destruct()
-        this.render = new this.renderer.renderer(this.glass, this.palette.palette, this)
+        this.render = new this.renderer.value(this.glass, this.palette.value, this)
     }
     
     change(type, value) {
