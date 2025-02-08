@@ -27,13 +27,23 @@ const state = {
 
 const settings = {
     speed: {
-        min: 32,
-        max: 800
+        min: 6,
+        max: 64,
+        default: 24,
     },
     restartKeys: ['n', ' ', 'Enter'],
 }
 
 let timerId = null
+let speedLn = 1 / Math.log(settings.speed.default)
+
+function setSpeed(delta = 1) {
+    state.speed += delta
+    if (state.speed < settings.speed.min) state.speed = settings.speed.min
+    if (state.speed > settings.speed.max) state.speed = settings.speed.max
+    
+    speedLn = 1 / Math.log(state.speed)
+}
 
 function addFigure() {
     const figure = state.next
@@ -93,8 +103,10 @@ function keyboardHandler(event) {
             start(true)
             break
         case '+': // speed up
+            setSpeed(1)
             break
         case '-': // speed down
+            setSpeed(-1)
             break
         case 'h':
             state.showShadow = !state.showShadow
@@ -165,7 +177,7 @@ function resetState() {
         next: getNext(),
         isOver: false,
         isPaused: false,
-        speed: 1
+        speed: settings.speed.default,
     })
 }
 
@@ -185,9 +197,8 @@ function step() {
 
     if (state.isOver) return;
 
-    const duration = 800 - Math.log10(state.score / 16 + 0.2) * 600
-    const timeout = duration > settings.speed.max ? settings.speed.max : duration < settings.speed.min ? settings.speed.min : duration
-    timerId = setTimeout(step, timeout)
+    const duration = (860 - state.score) - Math.log(state.score / 16 + 0.2) * speedLn * 600
+    timerId = setTimeout(step, duration)
 }
 
 if (core.query.get('debug') === 'show:figures') {

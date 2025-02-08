@@ -108,13 +108,18 @@ const css = palette => ({
         fontFamily: 'monospace',
     },
     
+    '.palette': {
+        color: 'silver',
+        fontFamily: 'monospace',
+    },
+    
     '.paused': {},
     '.game-over': {},
 })
 
 export class HtmlRender extends Render {
-    constructor(glass, palette) {
-        super(glass, palette, css)
+    constructor(glass, palette, core) {
+        super(glass, palette, core, css)
     }
     
     redraw(state) {
@@ -142,6 +147,9 @@ export class HtmlRender extends Render {
         
         this.elements.score.innerHTML = `Score: ${state.score}`
         this.elements.highscore.innerHTML = `Highscore: ${state.highscore}`
+        if (this.core.query.get('mode') !== 'tv' && !this.core.query.has('tv')) {
+            this.elements.palette.innerHTML = `Palette: ${this.core.palette.title}`
+        }
     }
     
     #wrapFigure(figure, html) {

@@ -19,6 +19,10 @@ import vivid from './palettes/vivid.js'
 import monochrome from './palettes/monochrome.js'
 import matrix from './palettes/matrix.js'
 import aurora from './palettes/aurora.js'
+import classicDim from './palettes/classic-dim.js'
+import darkSerenity from './palettes/dark-serenity.js'
+import lowGlare from './palettes/low-glare.js'
+import bw from './palettes/bw.js'
 
 import { Glass } from './glass.js'
 
@@ -50,6 +54,10 @@ const core = {
         { key: 'monochrome', title: 'Monochrome', palette: monochrome },
         { key: 'matrix', title: 'Matrix', palette: matrix },
         { key: 'aurora', title: 'Aurora', palette: aurora },
+        { key: 'classic-dim', title: 'Classic Dim', palette: classicDim },
+        { key: 'dark-serenity', title: 'Dark Serenity', palette: darkSerenity },
+        { key: 'low-glare', title: 'Low Glare', palette: lowGlare },
+        { key: 'bw', title: 'Black & White', palette: bw },
     ],
 }
 
@@ -64,13 +72,13 @@ export class Core {
         this.#setRenderer()
     }
     
-    #getCores(type) {
+    getCores(type) {
         return /** @type Cores */ core[type + 's']
     }
     
     #getValue(type) {
         const lsKey = 'tetris:' + type
-        const cores = this.#getCores(type)
+        const cores = this.getCores(type)
 
         const coreKeys = cores.map(({ key }) => key)
         const defaultKey = cores.find(value => value.default)?.key ?? coreKeys[0]
@@ -96,11 +104,11 @@ export class Core {
     
     #setRenderer() {
         this.render?.destruct()
-        this.render = new this.renderer.renderer(this.glass, this.palette.palette)
+        this.render = new this.renderer.renderer(this.glass, this.palette.palette, this)
     }
     
     change(type, value) {
-        const cores = this.#getCores(type)
+        const cores = this.getCores(type)
         if (!cores.keys.includes(value)) return
         
         const lsKey = 'tetris:' + type
@@ -114,13 +122,13 @@ export class Core {
     }
     
     next(type) {
-        const cores = this.#getCores(type)
+        const cores = this.getCores(type)
         cores.index = (cores.index + 1) % cores.keys.length
         return this.change(type, cores.keys[cores.index])
     }
     
     prev(type) {
-        const cores = this.#getCores(type)
+        const cores = this.getCores(type)
         cores.index = (cores.index - 1 + cores.keys.length) % cores.keys.length
         return this.change(type, cores.keys[cores.index])
     }

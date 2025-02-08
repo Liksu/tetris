@@ -52,8 +52,8 @@ export class TextRender extends Render {
         }
     }
 
-    constructor(glass, palette, charset = TextRender.Charsets.Blocks) {
-        super(glass, palette, styles)
+    constructor(glass, palette, core, charset = TextRender.Charsets.Blocks) {
+        super(glass, palette, core, styles)
         this.charset = charset
         this.#prepareView(palette)
     }

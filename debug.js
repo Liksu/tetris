@@ -5,21 +5,10 @@ import O from "./figures/O.js"
 import S from "./figures/S.js"
 import T from "./figures/T.js"
 import Z from "./figures/Z.js"
-
-import EGA from './palettes/EGA.js'
-import contrast from './palettes/contrast.js'
-import pastel from './palettes/pastel.js'
-import neon from './palettes/neon.js'
-import retro from './palettes/retro.js'
-import earthy from './palettes/earthy.js'
-import vivid from './palettes/vivid.js'
-import monochrome from './palettes/monochrome.js'
-import matrix from './palettes/matrix.js'
-import aurora from './palettes/aurora.js'
+import { addStyles } from './utils.js'
 
 
 const types = { I, J, L, O, S, T, Z }
-const palettes = [EGA, contrast, pastel, neon, retro, earthy, vivid, monochrome, matrix, aurora]
 
 const figures = [
     { type: 'J', left: 2, top: 0, state: 0, width: 2, height: 3 },
@@ -49,6 +38,13 @@ export function makeFigure({type, ...description}) {
     return figure
 }
 
+function showPalettes(render, core) {
+    render.elements.palette.innerHTML = core.getCores('palette').keys
+        .map(key => [key, key === core.palette.key ? 'active' : '', core.getCores('palette')[key].title])
+        .map(([key, className, title]) => `<p class="${className}">${title}</p>`)
+        .join('')
+} 
+
 export function showAll(core, glass, render, gameState) {
     glass.reset()
 
@@ -62,10 +58,29 @@ export function showAll(core, glass, render, gameState) {
     state.next = makeFigure(figures[nextIndex])
     
     render.redraw(gameState)
+    showPalettes(render, core)
     
-    let paletteIndex = 0
+    addStyles({
+        '.palette': {
+            display: 'flex',
+            justifyContent: 'center',
+            gap: '0',
+            flexDirection: 'column',
+        },
+        '.palette p': {
+            margin: '0',
+        },
+        '.palette .active': {
+            color: 'white',
+            fontWeight: 'bold',
+        },
+    })
     
     document.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowRight') core.next('palette')
+        if (event.key === 'ArrowLeft') core.prev('palette')
+        if (event.key === 'Escape') core.next('renderer')
+        
         // change figure in preview
         if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
             nextIndex += event.key === 'ArrowDown' ? -1 : 1
@@ -74,16 +89,8 @@ export function showAll(core, glass, render, gameState) {
             state.next = makeFigure(figures[nextIndex])
             render.redraw(gameState)
         }
-        
-        // change color scheme
-        if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
-            render.removeStyles()
-            paletteIndex += event.key === 'ArrowRight' ? 1 : -1
-            if (paletteIndex >= palettes.length) paletteIndex = 0
-            if (paletteIndex < 0) paletteIndex = palettes.length - 1
-            render.palette = palettes[paletteIndex]
-            render.addStyles()
-            render.redraw(gameState)
-        }
+
+        render.redraw(gameState)
+        showPalettes(render, core)
     })
 }

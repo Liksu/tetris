@@ -12,10 +12,11 @@ export class Render {
         copyright: document.querySelector('.copy'),
     }
 
-    constructor(glass, palette, styles = () => ({})) {
+    constructor(glass, palette, core, styles = () => ({})) {
         /** @type {Glass} */
         this.glass = glass
         this.palette = palette
+        this.core = core
         this.styles = styles
         this.addStyles()
     }
