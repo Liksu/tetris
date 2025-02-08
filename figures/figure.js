@@ -149,7 +149,7 @@ export class Figure {
     getShadow(glass) {
         const lowestRow = glass.lowestRow()
         if (this.top >= lowestRow) return null
-        return this.getBricks().map(brick => ({ ...brick, y: brick.y - figure.top + lowestRow }))
+        return this.getBricks().map(brick => ({ ...brick, y: brick.y - this.top + lowestRow }))
     }
 
     /** @return FigureDescription */

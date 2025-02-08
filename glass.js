@@ -27,40 +27,12 @@ export class Glass {
     
     lowestRow() {
         if (!this.current) return 0
+        const description = this.current.description
         
-        const figure = this.current
-        const glass = this
-        
-        // get masks to compare with stored values, if any of bits is set, row is occupied
-        const values = Array.from(Array(figure.height), (_, i) => {
-            // T as example, width = 3, height = 2, top = 3, left = 5
-            const indexShift = figure.width * i // 0, 3
-            const mask = (1 << figure.width) - 1 // 0b111
-            const value = (figure.value & (mask << indexShift)) >> indexShift // 0b10, 0b111
-            return value << (glass.width - figure.width - figure.left) // 0b1000, 0b11100
-        })
+        do description.top++
+        while (this.check(description))
 
-        // find first row with overlapping without all passed rows above
-        let index = Array(figure.top).fill(0)
-            .concat(glass.stored.slice(figure.top))
-            .findIndex(row => values.some(value => row & value))
-        
-        // return the bottom placement if no overlapping
-        if (index < 0) return glass.height - figure.height
-        
-        // Adjust index to account for the figure overlapping with a non-lowest brick
-        index += values.findIndex(value => glass.stored[index] & value)
-        index -= glass.stored
-            .slice(index - figure.height, index)
-            .reverse()
-            .filter((row, i) => row & values[i])
-            .length
-
-        // clamp index to the lowest row
-        if (index > glass.height) index = glass.height
-
-        // Return the lowest row the figure can be placed at
-        return index - figure.height
+        return description.top - 1
     }
 
     /** @param shift {{top: number, left: number}} */
