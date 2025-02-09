@@ -55,11 +55,11 @@ function addFigure() {
     const [placed, removedRows] = core.glass.add(figure, state)
 
     if (removedRows) {
-        const oldTens = Math.floor(state.score / 10) 
+        const oldTens = Math.floor(state.score / settings.speed.step) 
         state.score += removedRows
         if (state.score > state.highscore) state.highscore = state.score
         
-        const newTens = Math.floor(state.score / 10)
+        const newTens = Math.floor(state.score / settings.speed.step)
         if (newTens > oldTens) setSpeed(1)
     }
     
