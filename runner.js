@@ -27,28 +27,42 @@ const state = {
 
 const settings = {
     speed: {
-        min: 4,
-        max: 64,
-        default: 24,
+        min: -4,
+        max: 25,
+        default: 1,
+        step: 12,
     },
     restartKeys: ['n', ' ', 'Enter'],
 }
 
 let timerId = null
-let speedLn = 1 / Math.log(settings.speed.default)
 
 function setSpeed(delta = 1) {
     state.speed += delta
+    if (state.speed === 0) state.speed += delta
     if (state.speed < settings.speed.min) state.speed = settings.speed.min
     if (state.speed > settings.speed.max) state.speed = settings.speed.max
-    
-    speedLn = 1 / Math.log(state.speed)
+}
+
+const getDuration = (score, speed) => {
+    if (speed < 0) return 600 - 300 * speed
+    return 850 - 32 * speed
 }
 
 function addFigure() {
     const figure = state.next
     state.next = getNext()
-    const placed = core.glass.add(figure, state)
+    const [placed, removedRows] = core.glass.add(figure, state)
+
+    if (removedRows) {
+        const oldTens = Math.floor(state.score / 10) 
+        state.score += removedRows
+        if (state.score > state.highscore) state.highscore = state.score
+        
+        const newTens = Math.floor(state.score / 10)
+        if (newTens > oldTens) setSpeed(1)
+    }
+    
     if (!placed) stop()
     core.render.redraw(state)
     window.figure = figure
@@ -198,7 +212,7 @@ function step() {
 
     if (state.isOver) return;
 
-    const duration = (860 - state.score) - Math.log(state.score / 16 + 0.2) * speedLn * 600
+    const duration = getDuration(state.score, state.speed)
     timerId = setTimeout(step, duration)
 }
 
