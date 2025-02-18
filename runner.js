@@ -165,8 +165,14 @@ function keyboardHandler(event) {
         case 'c': // 'color', change palette
             core.next('palette')
             break
+        case 'C': // 'color', change palette back
+            core.prev('palette')
+            break
         case 'v': // 'view', change renderer
             core.next('renderer')
+            break
+        case 'V': // 'view', change renderer back
+            core.prev('renderer')
             break
         case 'd': // 'dialect', change language
             core.next('lang')
