@@ -68,16 +68,6 @@ export class CanvasRenderer extends Render {
             fillStyle: options.fillStyle ?? options.color ?? 'white',
         })
         
-        if (target === 'message') {
-            console.log('message', text, x, y, options, {
-                textAlign: 'left',
-                textBaseline: 'top',
-                font,
-                ...options,
-                fillStyle: options.fillStyle ?? options.color ?? 'white',
-            })
-        }
-        
         if (!measure) this.#layers[target].fillText(text, x, y)
         return this.#layers[target].measureText(text)
     }
@@ -85,7 +75,6 @@ export class CanvasRenderer extends Render {
     #drawFigure(target, figureBricks, phantom = false) {
         if (!figureBricks) return
 
-        this.#layers[target].fillStyle = this.palette[figureBricks.type]
         figureBricks.forEach(brick => this.#drawBlock(target, brick, phantom))
     }
     
@@ -93,13 +82,13 @@ export class CanvasRenderer extends Render {
         if (!brick) return
         const context = this.#layers[target]
         
-        let mainColor = this.palette[brick.type].main
+        let mainColor = this.palette[brick.type].main ?? this.palette[brick.type]
         if (phantom) mainColor = opacity(mainColor, shadowOpacity)
         
         context.fillStyle = mainColor
         context.fillRect(brick.x * brickSize, brick.y * brickSize, brickSize, brickSize)
         
-        let secondaryColor = this.palette[brick.type].secondary
+        let secondaryColor = this.palette[brick.type].secondary ?? this.palette[brick.type]
         if (phantom) secondaryColor = opacity(secondaryColor, shadowOpacity)
         
         context.strokeStyle = secondaryColor
