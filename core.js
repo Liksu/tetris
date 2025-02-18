@@ -8,6 +8,7 @@ import Z from './figures/Z.js'
 
 import { TextRender } from './renders/text.js'
 import { HtmlRender } from './renders/html.js'
+import { CanvasRenderer } from './renders/canvas.js'
 
 import EGA from './palettes/EGA.js'
 import contrast from './palettes/contrast.js'
@@ -55,6 +56,7 @@ const core = {
     renderers: [
         { key: 'text', title: 'Text', value: TextRender, default: true },
         { key: 'html', title: 'Html', value: HtmlRender },
+        { key: 'canvas', title: 'Canvas', value: CanvasRenderer },
     ],
     palettes: [
         { key: 'ega', title: 'EGA', value: EGA, default: true },
