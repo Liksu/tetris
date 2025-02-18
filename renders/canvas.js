@@ -118,12 +118,15 @@ export class CanvasRenderer extends Render {
         this.#layers.info.clearRect(0, 0, width, height)
         
         this.#writeText(`${this.text.score}: ${state.score}`, 0, center.y - 4 * brickSize, { size: 2 })
+        this.#writeText(`${this.text.speed}: ${state.speed}`, 0, center.y - 4 * brickSize + 44)
         this.#writeText(`${this.text.highscore}: ${state.highscore}`, 0, center.y + 3 * brickSize, { size: 2 })
-        this.#writeText(`${this.text.speed}: ${state.speed}`, 0, center.y + 5 * brickSize)
-        this.#writeText(`${this.text.palette}: ${this.core.palette.title}`, 0, center.y + 5 * brickSize + 20)
+        
+        if (!this.isTv) {
+            this.#writeText(`${this.text.palette}: ${this.core.palette.title}`, 0, center.y + 4 * brickSize + 20)
+        }
         
         // preview
-        this.#writeText(`${this.text.next}:`, 0, center.y - brickSize * 2 - 20, { size: 1.2 })
+        this.#writeText(`${this.text.next}:`, 0, center.y - brickSize * 2 - 22, { size: 1.2 })
         this.#layers.info.fillStyle = this.palette.background
         this.#layers.info.fillRect(0, center.y - brickSize * 2, brickSize * 4, brickSize * 4)
         this.#layers.info.translate((brickSize * 4 - state.next.width * brickSize) / 2, center.y - state.next.height * brickSize / 2)
